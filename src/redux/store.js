@@ -1,20 +1,17 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
-// import { persistStore, persistReducer } from 'redux-persist';
+import { configureStore } from '@reduxjs/toolkit';
 
-import middleware from './middleware';
-// import contactsPersistConfig from './contactsItems/contacts-persist-config';
-import {
-  contactsReducer,
-  errorReducer,
-  loadingReducer,
-} from './contactsItems/contacts-reducer';
+import { middleware, persistStore, persistReducer } from './middleware';
+
+import { contactsReducer } from './contactsItems/contacts-reducer';
+
 import { filterReducer } from './filter/filter-reducer';
+import authPersistConfig from './auth/auth-persist-config';
+import authReducer from './auth/auth-reducer';
 
 const reducer = {
+  auth: persistReducer(authPersistConfig, authReducer),
   contacts: contactsReducer,
   filter: filterReducer,
-  error: errorReducer,
-  loading: loadingReducer,
 };
 
 const store = configureStore({
@@ -23,7 +20,7 @@ const store = configureStore({
   devTools: process.env.NODE_ENV === 'development',
 });
 
-// const persistor = persistStore(store);
+const persistor = persistStore(store);
 
-/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
-export default { store };
+// /* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
+export { store, persistor };

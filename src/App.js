@@ -1,39 +1,65 @@
-import React, { Component } from 'react';
+import React, { Component, Suspense, lazy } from 'react';
+import { Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import ContactForm from './ContactForm';
-import ContactsList from './ContactsList';
-import Filter from './Filter';
+import routes from './routes';
+import { getCurrentUser } from './redux/auth/auth-operations';
 
-import { fetchContacts } from '../redux/contactsItems/contacts-operations';
-// import { getContactsLengths } from '../redux/contactsItems/contacts-selectors';
+import PrivateRoute from './Components/PrivateRoute/PrivateRoute';
+import PublicRoute from './Components/PublicRoute';
+import AppBar from './Components/AppBar';
+import Container from './Components/Container';
+// import Loading from './Components/Loading';
 
-import styles from './App.module.css';
+const HomePage = lazy(() => import('./Pages/HomePage'));
+const UserPage = lazy(() => import('./Pages/UserPage'));
+const LoginPage = lazy(() => import('./Pages/LoginPage'));
+const RegisterPage = lazy(() => import('./Pages/RegisterPage'));
 
 class App extends Component {
+  state = {};
+
   componentDidMount() {
-    this.props.fetchContacts();
+    this.props.getCurrentUser();
   }
 
   render() {
     return (
-      <div className={styles.container}>
-        <h1 className={styles.title}>Phonebook</h1>
-        <ContactForm />
-        <h2 className={styles.title}>Contacts</h2>
-        <Filter />
-        <ContactsList />
-      </div>
+      <>
+        <AppBar />
+        <Container>
+          <Suspense fallback={<p>Грузится...</p>}>
+            <Switch>
+              <PublicRoute exact path={routes.home} component={HomePage} />
+              <PrivateRoute
+                path={routes.contacts}
+                component={UserPage}
+                redirectTo={routes.login}
+              />
+              <PublicRoute
+                path={routes.login}
+                restricted
+                component={LoginPage}
+                redirectTo={routes.contacts}
+              />
+              <PublicRoute
+                path={routes.register}
+                restricted
+                component={RegisterPage}
+                redirectTo={routes.contacts}
+              />
+              <Redirect to={routes.home} />
+            </Switch>
+          </Suspense>
+          {/* <Loading /> */}
+        </Container>
+      </>
     );
   }
 }
 
-// const mapStateToProps = state => ({
-//   contactsLength: getContactsLengths(state),
-// });
-
-const mapDispatchToProps = dispatch => ({
-  fetchContacts: () => dispatch(fetchContacts()),
-});
+const mapDispatchToProps = {
+  getCurrentUser: getCurrentUser,
+};
 
 export default connect(null, mapDispatchToProps)(App);

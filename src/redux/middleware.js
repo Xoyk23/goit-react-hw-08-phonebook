@@ -2,6 +2,8 @@ import { getDefaultMiddleware } from '@reduxjs/toolkit';
 
 import logger from 'redux-logger';
 import {
+  persistStore,
+  persistReducer,
   FLUSH,
   REHYDRATE,
   PAUSE,
@@ -19,4 +21,4 @@ const middleware = [
   logger,
 ];
 
-export default middleware;
+export { middleware, persistStore, persistReducer };
